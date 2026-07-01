@@ -1,8 +1,8 @@
-<Project>
+﻿<Project>
   <PropertyGroup>
     <!-- net8.0 floor so the net8.0 AMLService can consume it; net10.0 services
          (Kefi) reference a net8.0 package with no issue. Do not raise without a
-         reason — AML is the lowest-common-denominator consumer. -->
+         reason â€” AML is the lowest-common-denominator consumer. -->
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -22,9 +22,9 @@
     <Description>AES-256-GCM at-rest secret protector. Encrypts sensitive secrets (API keys, webhook signing secrets, payment credentials) using an authenticated-encryption envelope keyed from configuration. Stored format is base64( nonce(12) + tag(16) + ciphertext ).</Description>
 
     <!-- Versioning -->
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
 
     <!-- NuGet settings -->
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -47,3 +47,4 @@
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
+

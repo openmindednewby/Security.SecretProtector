@@ -63,6 +63,54 @@ Kubernetes secret in prod) — never in this package or any committed file. Gene
 | Fail-fast | `true` (default) | throws at construction/startup | the secret is mandatory |
 | Soft | `false` | `IsConfigured == false`; `Protect`/`Unprotect` throw only if called | the secret is optional |
 
+## Per-tenant keys (`ITenantSecretProtector`, 1.1.0+)
+
+For credentials that must be cryptographically isolated *per tenant* — a client's EMI / bank
+API credentials in FINREG, where one tenant reading another's would be catastrophic — use
+`ITenantSecretProtector`. It keeps a **versioned master keyring** and derives each tenant's
+key on demand:
+
+```
+perTenantKey = HKDF-SHA256(masterKey_v, salt = UTF8(tenantId), info = "finreg-tenant-credential-v1")
+```
+
+No per-tenant key material is ever stored — it is recomputed for each operation and zeroed
+after. A token protected for one tenant **cannot** be decrypted under another's id (the derived
+keys differ → GCM authentication fails).
+
+```csharp
+using Security.SecretProtector.Extensions;
+
+// Eager, fail-fast at STARTUP (unlike the single-key registration, the keyring is built now):
+builder.Services.AddTenantSecretProtector(builder.Configuration, "Providers:CredentialKeyring");
+```
+
+```jsonc
+// Configuration shape (keys sourced from a secrets manager, never an inline manifest value):
+"Providers": {
+  "CredentialKeyring": {
+    "CurrentVersion": 1,
+    "Keys": { "1": "<base64/hex 32-byte key>" }   // add "2" during a rotation
+  }
+}
+```
+
+```csharp
+public sealed class VaultService(ITenantSecretProtector protector)
+{
+    public string Store(string tenantId, string credential) => protector.Protect(tenantId, credential);
+    public string Use(string tenantId, string token)        => protector.Unprotect(tenantId, token);
+}
+```
+
+**Token layout:** `base64( keyVersion(2) ‖ nonce(12) ‖ tag(16) ‖ ciphertext )` — a distinct type
+from the single-key token; the two are never interchanged.
+
+**Zero-downtime rotation:** add a new key under a higher version and set `CurrentVersion` to it.
+New secrets protect under the new version; already-stored tokens keep decrypting because their
+version selects the retained old key. Re-encrypt lazily, then drop the old key. Removing a
+version before its tokens are migrated makes those tokens fail closed (`CryptographicException`).
+
 ## License
 
 MIT

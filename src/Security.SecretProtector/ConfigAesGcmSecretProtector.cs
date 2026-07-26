@@ -29,7 +29,6 @@ namespace Security.SecretProtector;
 /// </remarks>
 public sealed class ConfigAesGcmSecretProtector : ISecretProtector
 {
-  private const int KeyBytes = 32;   // AES-256
   private const int NonceBytes = 12; // GCM standard nonce (AesGcm.NonceByteSizes max)
   private const int TagBytes = 16;   // GCM standard tag (AesGcm.TagByteSizes max)
 
@@ -49,7 +48,7 @@ public sealed class ConfigAesGcmSecretProtector : ISecretProtector
   /// </param>
   public ConfigAesGcmSecretProtector(string? configuredKey, bool failFast = true)
   {
-    if (TryDecodeKey(configuredKey, out var key))
+    if (SecretKeyDecoder.TryDecode(configuredKey, out var key))
     {
       _key = key;
     }
@@ -112,53 +111,4 @@ public sealed class ConfigAesGcmSecretProtector : ISecretProtector
   private byte[] RequireKey() => _key
       ?? throw new InvalidOperationException(
           "The secret protector is not configured; cannot protect/unprotect secrets.");
-
-  /// <summary>
-  /// Decodes the configured key from base64 or hex and validates its length. Returns
-  /// false (rather than throwing) for any missing / malformed / wrong-length value so
-  /// the soft-mode constructor can leave the protector un-configured.
-  /// </summary>
-  private static bool TryDecodeKey(string? raw, out byte[] key)
-  {
-    key = [];
-    if (string.IsNullOrWhiteSpace(raw))
-    {
-      return false;
-    }
-
-    var trimmed = raw.Trim();
-    byte[] decoded;
-    try
-    {
-      // Check hex FIRST: a 64-char hex string (32 bytes) is also valid base64 —
-      // base64 would decode it to 48 bytes and mask the operator's intent.
-      if (trimmed.Length == KeyBytes * 2 && trimmed.All(Uri.IsHexDigit))
-      {
-        decoded = Convert.FromHexString(trimmed);
-      }
-      else
-      {
-        try
-        {
-          decoded = Convert.FromBase64String(trimmed);
-        }
-        catch (FormatException)
-        {
-          decoded = Convert.FromHexString(trimmed);
-        }
-      }
-    }
-    catch (FormatException)
-    {
-      return false;
-    }
-
-    if (decoded.Length != KeyBytes)
-    {
-      return false;
-    }
-
-    key = decoded;
-    return true;
-  }
 }

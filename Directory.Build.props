@@ -17,14 +17,17 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>security;encryption;aes-gcm;secrets;at-rest;protector;multi-tenancy</PackageTags>
+    <PackageTags>security;encryption;aes-gcm;secrets;at-rest;protector;multi-tenancy;hkdf;per-tenant;key-rotation</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Description>AES-256-GCM at-rest secret protector. Encrypts sensitive secrets (API keys, webhook signing secrets, payment credentials) using an authenticated-encryption envelope keyed from configuration. Stored format is base64( nonce(12) + tag(16) + ciphertext ).</Description>
+    <Description>AES-256-GCM at-rest secret protector. ISecretProtector encrypts sensitive secrets (API keys, webhook signing secrets, payment credentials) with a single configured key. ITenantSecretProtector (1.1.0) adds per-tenant keys derived via HKDF from a versioned master keyring, so one tenant cannot decrypt another's credential, with zero-downtime key rotation. Key material lives only in a secrets manager, never the database.</Description>
 
     <!-- Versioning -->
-    <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
+    <!-- 1.1.0 — adds ITenantSecretProtector / HkdfTenantSecretProtector (per-tenant HKDF-derived
+         keys + versioned zero-downtime rotation) for FINREG's F-10 credential vault. Additive:
+         the single-key ISecretProtector surface is unchanged and its tokens are untouched. -->
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
 
     <!-- NuGet settings -->
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -47,4 +50,7 @@
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
+
+
+
 

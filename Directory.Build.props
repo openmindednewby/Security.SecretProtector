@@ -5,6 +5,7 @@
          reason â€” AML is the lowest-common-denominator consumer. -->
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <HouseArchitectureStyle>Clean</HouseArchitectureStyle>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -43,6 +44,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dloizides.Analyzers" Version="0.6.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
   </ItemGroup>
 

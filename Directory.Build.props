@@ -51,6 +51,14 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+  <PropertyGroup Label="RULES-ANALYZER-1 baselines">
+    <RulesAnalyzerBaselineRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '.'))</RulesAnalyzerBaselineRoot>
+  </PropertyGroup>
+  <ItemGroup Label="RULES-ANALYZER-1 baselines">
+    <AdditionalFiles Include="$(RulesAnalyzerBaselineRoot)linq-syntax-baseline.txt" Condition="Exists('$(RulesAnalyzerBaselineRoot)linq-syntax-baseline.txt')" />
+    <AdditionalFiles Include="$(RulesAnalyzerBaselineRoot)member-order-baseline.txt" Condition="Exists('$(RulesAnalyzerBaselineRoot)member-order-baseline.txt')" />
+    <AdditionalFiles Include="$(RulesAnalyzerBaselineRoot)file-size-baseline.txt" Condition="Exists('$(RulesAnalyzerBaselineRoot)file-size-baseline.txt')" />
+  </ItemGroup>
 </Project>
 
 

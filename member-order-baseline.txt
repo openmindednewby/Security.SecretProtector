@@ -1,0 +1,2 @@
+tests/Security.SecretProtector.Tests/ConfigAesGcmSecretProtectorTests.cs 2
+tests/Security.SecretProtector.Tests/HkdfTenantSecretProtectorTests.cs 3
